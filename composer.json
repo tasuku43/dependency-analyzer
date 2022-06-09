@@ -1,0 +1,18 @@
+{
+    "name": "tasuku43/dependency-checker",
+    "autoload": {
+        "psr-4": {
+            "Tasuku43\\DependencyChecker\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "tasuku43",
+            "email": "task.teckac@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/console": "^6.0",
+        "nikic/php-parser": "^4.14"
+    }
+}
