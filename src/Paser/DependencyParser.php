@@ -12,7 +12,8 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeTraverserInterface;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\Parser;
-use Tasuku43\DependencyChecker\Node\Dependency;
+use PhpParser\ParserFactory;
+use Tasuku43\DependencyChecker\Analyser\DependencyMap;
 
 class DependencyParser
 {
@@ -20,14 +21,22 @@ class DependencyParser
     {
     }
 
-    public function parse(string $code): array
+    public static function factory(): self
+    {
+        return new self(
+            parser: (new ParserFactory)->create(ParserFactory::PREFER_PHP7),
+            traverser: new NodeTraverser()
+        );
+    }
+
+    public function parse(string $code): DependencyMap
     {
         $ast = $this->parser->parse($code);
 
         $this->traverser->addVisitor(new class extends NodeVisitorAbstract {
             public function leaveNode(Node $node) {
                 // TODO: Support for parsing dependencies inside classes
-                if ($node instanceof Declare_ || $node instanceof Class_) {
+                if ($node instanceof Declare_) {
                     return NodeTraverser::REMOVE_NODE;
                 }
                 return null;
@@ -37,12 +46,15 @@ class DependencyParser
         $ast = $this->traverser->traverse($ast)[0];
         assert($ast instanceof Namespace_);
 
-        $dependency = new Dependency(implode("\\", $ast->name->parts));
+        $dependency = new DependencyMap(implode("\\", $ast->name->parts));
 
         foreach($ast->stmts as $node) {
+            if ($node instanceof Class_) {
+                $dependency->setDepender($node->name->name);
+            }
             if ($node instanceof Use_) {
                 // TODO: Consideration of multiple contents in uses
-                $dependency->register(implode("\\", $node->uses[0]->name->parts));
+                $dependency->registerDependent(implode("\\", $node->uses[0]->name->parts));
             }
         }
 
