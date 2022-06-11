@@ -11,13 +11,18 @@ class DependencyAnalyzer
     {
     }
 
-    public function analyze(string $targetRelativePath, string $dependentNamespaceName): array
+    /**
+     * @param string $targetRelativePath
+     * @param string $pattern
+     * @return Dependency[]
+     */
+    public function analyze(string $targetRelativePath, string $pattern): array
     {
         $absolutePath = __DIR__ . '/../../' . $targetRelativePath;
 
         return array_filter(
             $this->dependencyList($absolutePath),
-            fn(Dependency $dependency) => str_starts_with($dependency->getDependent(), $dependentNamespaceName)
+            fn(Dependency $dependency) => str_contains($dependency->getDependent(), $pattern)
         );
     }
 

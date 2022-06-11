@@ -9,6 +9,11 @@ class Dependency
     {
     }
 
+    public function getDepender(): string
+    {
+        return $this->depender;
+    }
+
     public function getDependent(): string
     {
         return $this->dependent;
