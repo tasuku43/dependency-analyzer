@@ -13,7 +13,8 @@ use PhpParser\NodeTraverserInterface;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
-use Tasuku43\DependencyChecker\Analyser\DependencyMap;
+use Tasuku43\DependencyChecker\Analyser\Dependency;
+use Tasuku43\DependencyChecker\Analyser\DependencyResolver;
 
 class DependencyParser
 {
@@ -29,12 +30,17 @@ class DependencyParser
         );
     }
 
-    public function parse(string $code): DependencyMap
+    /**
+     * @param string $code
+     * @return Dependency[]
+     */
+    public function parse(string $code): array
     {
         $ast = $this->parser->parse($code);
 
         $this->traverser->addVisitor(new class extends NodeVisitorAbstract {
-            public function leaveNode(Node $node) {
+            public function leaveNode(Node $node)
+            {
                 // TODO: Support for parsing dependencies inside classes
                 if ($node instanceof Declare_) {
                     return NodeTraverser::REMOVE_NODE;
@@ -46,18 +52,20 @@ class DependencyParser
         $ast = $this->traverser->traverse($ast)[0];
         assert($ast instanceof Namespace_);
 
-        $dependency = new DependencyMap(implode("\\", $ast->name->parts));
+        $namespace = implode("\\", $ast->name->parts);
 
-        foreach($ast->stmts as $node) {
+        $dependencyResolver = new DependencyResolver();
+
+        foreach ($ast->stmts as $node) {
             if ($node instanceof Class_) {
-                $dependency->setDepender($node->name->name);
+                $dependencyResolver->setDepender($namespace . '\\' . $node->name->name);
             }
             if ($node instanceof Use_) {
                 // TODO: Consideration of multiple contents in uses
-                $dependency->registerDependent(implode("\\", $node->uses[0]->name->parts));
+                $dependencyResolver->registerDependent(implode("\\", $node->uses[0]->name->parts));
             }
         }
 
-        return $dependency;
+        return $dependencyResolver->resolve();
     }
 }

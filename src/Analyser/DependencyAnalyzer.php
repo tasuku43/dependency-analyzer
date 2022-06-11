@@ -3,39 +3,47 @@ declare(strict_types=1);
 
 namespace Tasuku43\DependencyChecker\Analyser;
 
+use Tasuku43\DependencyChecker\Paser\DependencyParser;
+
 class DependencyAnalyzer
 {
-    /**
-     * @var DependencyMap[]
-     */
-    private array $dependencyMaps;
-
-    public function __construct(DependencyMap ...$dependencyMaps)
+    public function __construct(private DependencyParser $parser)
     {
-        $this->dependencyMaps = $dependencyMaps;
+    }
+
+    public function analyze(string $targetRelativePath, string $dependentNamespaceName): array
+    {
+        $absolutePath = __DIR__ . '/../../' . $targetRelativePath;
+
+        return array_filter(
+            $this->dependencyList($absolutePath),
+            fn(Dependency $dependency) => str_starts_with($dependency->getDependent(), $dependentNamespaceName)
+        );
     }
 
     /**
-     * @param string $namespaceName
-     * @return DependencyRelation[]
+     * @param string $absolutePath
+     * @return Dependency[]
      */
-    public function dependencyRelations(string $namespaceName): array
+    private function dependencyList(string $absolutePath): array
     {
-        $relations = [];
+        $files = scandir($absolutePath);
+        $files = array_filter($files, function ($file) {
+            return !in_array($file, array('.', '..'));
+        });
 
-         foreach ($this->dependencyMaps as $dependencyMap) {
-             $temp = array_map(function (string $dependent) use ($dependencyMap) {
-                 return new DependencyRelation(
-                     depender: $dependencyMap->getDependerFullName(),
-                     dependent: $dependent
-                 );
-             }, $dependencyMap->getDependentListFilteredBy($namespaceName));
+        $dependencyList = [];
 
-             if ($temp !== []) {
-                 $relations = array_merge($relations, $temp);
-             }
-         }
+        foreach ($files as $file) {
+            $fullpath = rtrim($absolutePath, '/') . '/' . $file;
+            if (is_file($fullpath)) {
+                $dependencyList = [...$dependencyList, ...$this->parser->parse(file_get_contents($fullpath))];
+            }
+            if (is_dir($fullpath)) {
+                $dependencyList = [...$dependencyList, ...$this->dependencyList($fullpath)];
+            }
+        }
 
-         return $relations;
+        return $dependencyList;
     }
 }
