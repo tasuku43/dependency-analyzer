@@ -5,17 +5,24 @@ namespace Tasuku43\DependencyChecker\Analyser;
 
 class Dependency
 {
-    public function __construct(private string $depender, private string $dependent)
+    private string $depender;
+    private array  $dependentList;
+
+    public function __construct()
     {
+        $this->depender      = 'unknown';
+        $this->dependentList = [];
     }
 
-    public function getDepender(): string
+    public function setDepender(string $className): void
     {
-        return $this->depender;
+        $this->depender = $className;
     }
 
-    public function getDependent(): string
+    public function registerDependent(string $className): void
     {
-        return $this->dependent;
+        if (!in_array($className, $this->dependentList)) {
+            $this->dependentList[] = $className;
+        }
     }
 }

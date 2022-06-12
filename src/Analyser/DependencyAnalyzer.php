@@ -3,11 +3,12 @@ declare(strict_types=1);
 
 namespace Tasuku43\DependencyChecker\Analyser;
 
-use Tasuku43\DependencyChecker\Paser\DependencyParser;
+use Symfony\Component\Finder\Finder;
+use Tasuku43\DependencyChecker\Paser\DependencyResolver;
 
 class DependencyAnalyzer
 {
-    public function __construct(private DependencyParser $parser)
+    public function __construct(private DependencyResolver $parser)
     {
     }
 
@@ -32,6 +33,18 @@ class DependencyAnalyzer
      */
     private function dependencyList(string $absolutePath): array
     {
+        $finder = new Finder();
+        $finder->in($absolutePath)
+            ->name('*.php')
+            ->files();
+
+        var_dump($finder->count());
+        exit();
+
+        foreach ($finder as $file) {
+
+        }
+
         $files = scandir($absolutePath);
         $files = array_filter($files, function ($file) {
             return !in_array($file, array('.', '..'));
@@ -42,7 +55,7 @@ class DependencyAnalyzer
         foreach ($files as $file) {
             $fullpath = rtrim($absolutePath, '/') . '/' . $file;
             if (is_file($fullpath)) {
-                $dependencyList = [...$dependencyList, ...$this->parser->parse(file_get_contents($fullpath))];
+                $dependencyList = [...$dependencyList, $this->parser->parse(file_get_contents($fullpath))];
             }
             if (is_dir($fullpath)) {
                 $dependencyList = [...$dependencyList, ...$this->dependencyList($fullpath)];

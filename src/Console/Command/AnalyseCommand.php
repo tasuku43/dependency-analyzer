@@ -9,9 +9,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Tasuku43\DependencyChecker\Analyser\DependencyAnalyzer;
-use Tasuku43\DependencyChecker\Paser\DependencyParser;
+use Tasuku43\DependencyChecker\Paser\DependencyResolver;
 
-class AnalyseCommand extends Command
+class  AnalyseCommand extends Command
 {
     protected function configure()
     {
@@ -35,7 +35,7 @@ class AnalyseCommand extends Command
         $path      = $input->getOption('path');
         $pattern = $input->getOption('pattern');
 
-        $analyzer = new DependencyAnalyzer(DependencyParser::factory());
+        $analyzer = new DependencyAnalyzer(DependencyResolver::factory());
 
 
         $symfonyStyle = new SymfonyStyle($input, $output);

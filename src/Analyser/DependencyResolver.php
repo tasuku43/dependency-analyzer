@@ -1,38 +1,79 @@
 <?php
 declare(strict_types=1);
 
-namespace Tasuku43\DependencyChecker\Analyser;
+namespace Tasuku43\DependencyChecker\Paser;
+
+use PhpParser\Node;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Declare_;
+use PhpParser\Node\Stmt\Namespace_;
+use PhpParser\Node\Stmt\Use_;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeTraverserInterface;
+use PhpParser\NodeVisitorAbstract;
+use PhpParser\Parser;
+use PhpParser\Error;
+use PhpParser\ParserFactory;
+use Tasuku43\DependencyChecker\Analyser\Dependency;
 
 class DependencyResolver
 {
-    private string $depender;
-    private array  $dependentList;
-
-    public function __construct()
+    public function __construct(private Parser $parser, private NodeTraverserInterface $traverser)
     {
-        $this->depender      = 'unknown';
-        $this->dependentList = [];
     }
 
-    public function setDepender(string $className): void
+    public static function factory(): self
     {
-        $this->depender = $className;
-    }
-
-    public function registerDependent(string $className): void
-    {
-        if (!in_array($className, $this->dependentList)) {
-            $this->dependentList[] = $className;
-        }
+        return new self(
+            parser: (new ParserFactory)->create(ParserFactory::PREFER_PHP7),
+            traverser: new NodeTraverser()
+        );
     }
 
     /**
-     * @return Dependency[]
+     * @param string $code
+     * @return Dependency
      */
-    public function resolve(): array
+    public function parse(string $code): Dependency
     {
-        return array_map(function (string $dependent) {
-            return new Dependency($this->depender, $dependent);
-        }, $this->dependentList);
+        try {
+            $ast = $this->parser->parse($code);
+        } catch (Error $error) {
+            echo "Parse error: {$error->getMessage()}\n";
+            return [];
+        }
+
+        $this->traverser->addVisitor(new class extends NodeVisitorAbstract {
+            public function leaveNode(Node $node)
+            {
+                // TODO: Support for parsing dependencies inside classes
+                if ($node instanceof Declare_) {
+                    return NodeTraverser::REMOVE_NODE;
+                }
+                return null;
+            }
+        });
+
+        $ast = $this->traverser->traverse($ast)[0];
+
+        if (!$ast instanceof Namespace_) {
+            return [];
+        }
+
+        $namespace = implode("\\", $ast->name->parts);
+
+        $dependency = new Dependency();
+
+        foreach ($ast->stmts as $node) {
+            if ($node instanceof Class_) {
+                $dependency->setDepender($namespace . '\\' . $node->name->name);
+            }
+            if ($node instanceof Use_) {
+                // TODO: Consideration of multiple contents in uses
+                $dependency->registerDependent(implode("\\", $node->uses[0]->name->parts));
+            }
+        }
+
+        return $dependency;
     }
 }
