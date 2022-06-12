@@ -8,11 +8,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Tasuku43\DependencyChecker\Analyser\Dependency;
 use Tasuku43\DependencyChecker\Analyser\DependencyAnalyzer;
 use Tasuku43\DependencyChecker\Analyser\DependencyResolver;
 
-class  AnalyseCommand extends Command
+class AnalyseCommand extends Command
 {
+    private const GROUP_BY_DEPENDER  = 'depender';
+    private const GROUP_BY_DEPENDENT = 'dependent';
+
     protected function configure()
     {
         $this->setName('analyse')
@@ -27,21 +31,47 @@ class  AnalyseCommand extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Fuga'
+            )->addOption(
+                'group-by',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Piyo'
             );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $path      = $input->getOption('path');
-        $pattern = $input->getOption('pattern');
-
-        $analyzer = new DependencyAnalyzer(DependencyResolver::factory());
-
-
         $symfonyStyle = new SymfonyStyle($input, $output);
 
+        $path    = $input->getOption('path');
+        $pattern = $input->getOption('pattern');
+        $groupBy = $input->getOption('group-by') ?? self::GROUP_BY_DEPENDER;
+
+        if (!in_array($groupBy, [self::GROUP_BY_DEPENDER, self::GROUP_BY_DEPENDENT])) {
+            $symfonyStyle->error([
+                'Invalid value for group-by option',
+                sprintf('Please specify `%s` or `%s`', self::GROUP_BY_DEPENDER, self::GROUP_BY_DEPENDENT)
+            ]);
+
+            return self::FAILURE;
+        }
+
+        $analyzer      = new DependencyAnalyzer(DependencyResolver::factory());
         $dependecyList = $analyzer->analyze($path, $pattern);
 
+        return match ($groupBy) {
+            self::GROUP_BY_DEPENDER  => $this->reportGroupByDepender($dependecyList, $symfonyStyle),
+            self::GROUP_BY_DEPENDENT => $this->reportGroupByDependent($dependecyList, $symfonyStyle),
+        };
+    }
+
+    /**
+     * @param Dependency[] $dependecyList
+     * @param SymfonyStyle $symfonyStyle
+     * @return int
+     */
+    protected function reportGroupByDepender(array $dependecyList, SymfonyStyle $symfonyStyle): int
+    {
         foreach ($dependecyList as $dependency) {
             $header = ['Depender', $dependency->getDepender()];
 
@@ -56,6 +86,36 @@ class  AnalyseCommand extends Command
         }
 
         $symfonyStyle->success(sprintf('Found %s dependers', count($dependecyList)));
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * @param Dependency[] $dependecyList
+     * @param SymfonyStyle $symfonyStyle
+     * @return int
+     */
+    protected function reportGroupByDependent(array $dependecyList, SymfonyStyle $symfonyStyle): int
+    {
+        $dependent2depender = [];
+        foreach ($dependecyList as $dependency) {
+            foreach ($dependency->getDependentList() as $dependent) {
+                $dependent2depender[$dependent][] = $dependency->getDepender();
+            }
+        }
+
+        foreach ($dependent2depender as $dependent => $dependerList) {
+            $header = ['Dependent', $dependent];
+
+            $rows = [['Depender List', array_shift($dependerList)]];
+            $rows = [...$rows, ...array_map(function ($depender) {
+                return ['', $depender];
+            }, $dependerList)];
+
+            $symfonyStyle->table($header, $rows);
+        }
+
+        $symfonyStyle->success(sprintf('Found %s dependents', count($dependent2depender)));
 
         return self::SUCCESS;
     }
