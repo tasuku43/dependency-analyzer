@@ -40,7 +40,9 @@ class  AnalyseCommand extends Command
 
         $symfonyStyle = new SymfonyStyle($input, $output);
 
-        foreach ($analyzer->analyze($path, $pattern) as $dependency) {
+        $dependecyList = $analyzer->analyze($path, $pattern);
+
+        foreach ($dependecyList as $dependency) {
             $header = ['Depender', $dependency->getDepender()];
 
             $dependentList = $dependency->getDependentList();
@@ -52,6 +54,8 @@ class  AnalyseCommand extends Command
 
             $symfonyStyle->table($header, $rows);
         }
+
+        $symfonyStyle->success(sprintf('Found %s dependers', count($dependecyList)));
 
         return self::SUCCESS;
     }
