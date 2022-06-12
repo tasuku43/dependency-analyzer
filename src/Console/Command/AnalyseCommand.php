@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Tasuku43\DependencyChecker\Analyser\DependencyAnalyzer;
-use Tasuku43\DependencyChecker\Paser\DependencyResolver;
+use Tasuku43\DependencyChecker\Analyser\DependencyResolver;
 
 class  AnalyseCommand extends Command
 {
@@ -40,13 +40,10 @@ class  AnalyseCommand extends Command
 
         $symfonyStyle = new SymfonyStyle($input, $output);
 
-        $results = [];
         foreach ($analyzer->analyze($path, $pattern) as $dependency) {
-            $results[$dependency->getDepender()][] = $dependency->getDependent();
-        }
+            $header = ['Depender', $dependency->getDepender()];
 
-        foreach ($results as $depender => $dependentList) {
-            $header = ['Depender', $depender];
+            $dependentList = $dependency->getDependentList();
 
             $rows = [['Dependent List', array_shift($dependentList)]];
             $rows = [...$rows, ...array_map(function ($dependent) {

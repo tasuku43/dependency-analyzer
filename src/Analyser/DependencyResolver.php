@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tasuku43\DependencyChecker\Paser;
+namespace Tasuku43\DependencyChecker\Analyser;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
@@ -14,7 +14,6 @@ use PhpParser\NodeVisitorAbstract;
 use PhpParser\Parser;
 use PhpParser\Error;
 use PhpParser\ParserFactory;
-use Tasuku43\DependencyChecker\Analyser\Dependency;
 
 class DependencyResolver
 {
@@ -34,13 +33,12 @@ class DependencyResolver
      * @param string $code
      * @return Dependency
      */
-    public function parse(string $code): Dependency
+    public function resolve(string $code): Dependency
     {
         try {
             $ast = $this->parser->parse($code);
         } catch (Error $error) {
-            echo "Parse error: {$error->getMessage()}\n";
-            return [];
+            throw new FailedResolveDependencyException($error->getMessage());
         }
 
         $this->traverser->addVisitor(new class extends NodeVisitorAbstract {
@@ -57,7 +55,7 @@ class DependencyResolver
         $ast = $this->traverser->traverse($ast)[0];
 
         if (!$ast instanceof Namespace_) {
-            return [];
+            throw new FailedResolveDependencyException();
         }
 
         $namespace = implode("\\", $ast->name->parts);

@@ -25,4 +25,31 @@ class Dependency
             $this->dependentList[] = $className;
         }
     }
+
+    public function filter(string $pattern): self
+    {
+        $this->dependentList = array_filter(
+            $this->dependentList,
+            fn(string $dependent) => str_contains($dependent, $pattern)
+        );
+        return $this;
+    }
+
+    public function isEmpty(): bool
+    {
+        return empty($this->dependentList);
+    }
+
+    public function getDepender(): string
+    {
+        return $this->depender;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getDependentList(): array
+    {
+        return $this->dependentList;
+    }
 }
