@@ -25,17 +25,18 @@ class AnalyseCommand extends Command
                 'path',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Relative directory path to be analyzed.'
+                'Relative directory path to be analyzed'
             )->addOption(
                 'pattern',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Fuga'
+                'Specify namespace or class name'
             )->addOption(
                 'group-by',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                'Piyo'
+                'Grouping Option ("depender" or "dependent")',
+                self::GROUP_BY_DEPENDER
             );
     }
 
@@ -45,7 +46,7 @@ class AnalyseCommand extends Command
 
         $path    = $input->getOption('path');
         $pattern = $input->getOption('pattern');
-        $groupBy = $input->getOption('group-by') ?? self::GROUP_BY_DEPENDER;
+        $groupBy = $input->getOption('group-by');
 
         if (!in_array($groupBy, [self::GROUP_BY_DEPENDER, self::GROUP_BY_DEPENDENT])) {
             $symfonyStyle->error([
