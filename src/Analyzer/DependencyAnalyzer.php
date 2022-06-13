@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tasuku43\DependencyChecker\Analyser;
+namespace Tasuku43\DependencyChecker\Analyzer;
 
 use Symfony\Component\Finder\Finder;
 

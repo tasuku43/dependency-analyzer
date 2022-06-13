@@ -8,9 +8,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Tasuku43\DependencyChecker\Analyser\Dependency;
-use Tasuku43\DependencyChecker\Analyser\DependencyAnalyzer;
-use Tasuku43\DependencyChecker\Analyser\DependencyResolver;
+use Tasuku43\DependencyChecker\Analyzer\Dependency;
+use Tasuku43\DependencyChecker\Analyzer\DependencyAnalyzer;
+use Tasuku43\DependencyChecker\Analyzer\DependencyResolver;
 
 class AnalyseCommand extends Command
 {
