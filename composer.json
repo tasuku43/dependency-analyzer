@@ -1,5 +1,18 @@
 {
     "name": "tasuku43/dependency-checker",
+    "type": "library",
+    "description": "Check the dependencies of PHP classes",
+    "license": ["MIT"],
+    "keywords": [
+        "php",
+        "dependency"
+    ],
+    "authors": [
+        {
+            "name": "tasuku43",
+            "email": "task.teckac@gmail.com"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Tasuku43\\DependencyChecker\\": "src/"
@@ -10,16 +23,13 @@
             "Tasuku43\\Tests\\DependencyChecker\\": "tests/"
         }
     },
-    "authors": [
-        {
-            "name": "tasuku43",
-            "email": "task.teckac@gmail.com"
-        }
-    ],
     "require": {
         "symfony/console": "^6.0",
         "nikic/php-parser": "^4.14",
         "phpunit/phpunit": "^9.5",
         "symfony/finder": "^6.0"
-    }
+    },
+    "bin": [
+        "dependency-checker"
+    ]
 }
