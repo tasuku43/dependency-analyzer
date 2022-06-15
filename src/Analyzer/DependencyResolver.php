@@ -45,10 +45,35 @@ class DependencyResolver
             throw new FailedResolveDependencyException($error->getMessage());
         }
 
-        $dependency = $this->buildByAst(new Dependency(), $ast);
+        return $this->resolveDependents($this->resolveDepender(new Dependency(), $ast), $ast);
+    }
 
-        $this->traverser->addVisitor($this->removeNamespaceNameVisitor());
-        $ast = $this->traverser->traverse($ast);
+    /**
+     * @param Dependency $dependency
+     * @param Stmt[] $ast
+     * @return Dependency
+     */
+    protected function resolveDepender(Dependency $dependency, array $ast): Dependency
+    {
+        foreach ($ast as $node) {
+            if ($node instanceof Namespace_) {
+                return $this->resolveDepender($dependency->setNamespace($node->name->toString()), $node->stmts);
+            }
+            if ($node instanceof ClassLike) {
+                return $this->resolveDepender($dependency->setDepender($node->name->name), $node->stmts);
+            }
+        }
+        return $dependency;
+    }
+
+    /**
+     * @param Dependency $dependency
+     * @param Stmt[] $ast
+     * @return Dependency
+     */
+    protected function resolveDependents(Dependency $dependency, array $ast): Dependency
+    {
+        $ast = $this->removeNamespaceName($ast);
 
         /** @var Node\Name[] $names */
         $names = $this->finder->find($ast, function (Node $node) {
@@ -62,27 +87,12 @@ class DependencyResolver
     }
 
     /**
-     * @param Dependency $dependency
-     * @param Stmt[] $ast
-     * @return Dependency
+     * @param array $ast
+     * @return Node[]
      */
-    protected function buildByAst(Dependency $dependency, array $ast): Dependency
+    protected function removeNamespaceName(array $ast): array
     {
-        foreach ($ast as $node) {
-            if ($node instanceof Namespace_) {
-                $namespace = implode("\\", $node->name->parts);
-                return $this->buildByAst($dependency->setNamespace($namespace), $node->stmts);
-            }
-            if ($node instanceof ClassLike) {
-                return $this->buildByAst($dependency->setDepender($node->name->name), $node->stmts);
-            }
-        }
-        return $dependency;
-    }
-
-    private function removeNamespaceNameVisitor(): NodeVisitorAbstract
-    {
-        return new class extends NodeVisitorAbstract {
+        $this->traverser->addVisitor(new class extends NodeVisitorAbstract {
             public function leaveNode(Node $node)
             {
                 if ($node instanceof Namespace_) {
@@ -90,6 +100,7 @@ class DependencyResolver
                 }
                 return null;
             }
-        };
+        });
+        return $this->traverser->traverse($ast);
     }
 }

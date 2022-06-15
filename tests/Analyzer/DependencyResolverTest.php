@@ -17,8 +17,6 @@ class DependencyResolverTest extends TestCase
     {
         $dependency = DependencyResolver::factory()->resolve(file_get_contents($path));
 
-
-        var_dump($dependency->getDependentList());
         self::assertContains(SampleClass::class, $dependency->getDependentList());
     }
 
