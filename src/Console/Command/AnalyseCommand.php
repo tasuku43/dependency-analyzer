@@ -19,7 +19,7 @@ class AnalyseCommand extends Command
 
     protected function configure()
     {
-        $this->setName('analyse')
+        $this->setName('analyze')
             ->setDescription('Dependency check command')
             ->addOption(
                 'path',
