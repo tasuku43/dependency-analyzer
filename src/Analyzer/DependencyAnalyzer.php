@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Tasuku43\DependencyChecker\Analyzer;
 
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
 class DependencyAnalyzer
@@ -12,7 +14,10 @@ class DependencyAnalyzer
      */
     private array $violations = [];
 
-    public function __construct(private DependencyResolver $resolver)
+    public function __construct(
+        private DependencyResolver $resolver,
+        private OutputInterface $output
+    )
     {
     }
 
@@ -31,9 +36,12 @@ class DependencyAnalyzer
         // If the pattern string is not present in the file, there is no need to parse dependencies
         $finder->in($absolutePath)->name('*.php')->contains($pattern)->files();
 
+        $progressBar = new ProgressBar($this->output, $finder->count());
+        $progressBar->setFormat(' [%bar%] %percent:3s%%');
         foreach ($finder as $file) {
+            $progressBar->advance();
             try {
-                $dependency = $this->resolver->resolve(file_get_contents($file->getRealPath()))->filter($pattern);
+                $dependency = $this->resolver->resolve($file->getContents())->filter($pattern);
             } catch (FailedResolveDependencyException $exception) {
                 $this->violations[] = $exception->getMessage();
                 continue;
@@ -43,6 +51,8 @@ class DependencyAnalyzer
                 $dependencyList[] = $dependency;
             }
         }
+        $progressBar->finish();
+        $this->output->writeln('');
 
         return $dependencyList;
     }

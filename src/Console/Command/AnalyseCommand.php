@@ -57,7 +57,7 @@ class AnalyseCommand extends Command
             return self::FAILURE;
         }
 
-        $analyzer      = new DependencyAnalyzer(DependencyResolver::factory());
+        $analyzer      = new DependencyAnalyzer(DependencyResolver::factory(), $symfonyStyle);
         $dependecyList = $analyzer->analyze($path, $pattern);
 
         return match ($groupBy) {
