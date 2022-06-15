@@ -5,25 +5,36 @@ namespace Tasuku43\DependencyChecker\Analyzer;
 
 class Dependency
 {
+    private string $namespace;
     private string $depender;
     private array  $dependentList;
 
     public function __construct()
     {
+        $this->namespace = '';
         $this->depender      = 'unknown';
         $this->dependentList = [];
     }
 
-    public function setDepender(string $className): void
+    public function setDepender(string $className): self
     {
         $this->depender = $className;
+
+        return $this;
     }
 
-    public function registerDependent(string $className): void
+    public function registerDependent(string $className): self
     {
+        foreach ($this->dependentList as $dependent) {
+            if (str_ends_with($dependent, $className)) {
+                return $this;
+            }
+        }
+
         if (!in_array($className, $this->dependentList)) {
             $this->dependentList[] = $className;
         }
+        return $this;
     }
 
     public function filter(string $pattern): self
@@ -40,9 +51,16 @@ class Dependency
         return empty($this->dependentList);
     }
 
+    public function setNamespace(string $namespace): self
+    {
+        $this->namespace = $namespace;
+
+        return $this;
+    }
+
     public function getDepender(): string
     {
-        return $this->depender;
+        return $this->namespace . '\\' . $this->depender;
     }
 
     /**

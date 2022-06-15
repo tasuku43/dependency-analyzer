@@ -5,6 +5,11 @@
             "Tasuku43\\DependencyChecker\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tasuku43\\Tests\\DependencyChecker\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "tasuku43",

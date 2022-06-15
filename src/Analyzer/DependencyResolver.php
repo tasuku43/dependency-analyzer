@@ -4,12 +4,11 @@ declare(strict_types=1);
 namespace Tasuku43\DependencyChecker\Analyzer;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\Declare_;
+use PhpParser\Node\Stmt;
+use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Namespace_;
-use PhpParser\Node\Stmt\Use_;
+use PhpParser\NodeFinder;
 use PhpParser\NodeTraverser;
-use PhpParser\NodeTraverserInterface;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\Parser;
 use PhpParser\Error;
@@ -17,7 +16,11 @@ use PhpParser\ParserFactory;
 
 class DependencyResolver
 {
-    public function __construct(private Parser $parser, private NodeTraverserInterface $traverser)
+    public function __construct(
+        private Parser        $parser,
+        private NodeTraverser $traverser,
+        private NodeFinder    $finder
+    )
     {
     }
 
@@ -25,7 +28,8 @@ class DependencyResolver
     {
         return new self(
             parser: (new ParserFactory)->create(ParserFactory::PREFER_PHP7),
-            traverser: new NodeTraverser()
+            traverser: new NodeTraverser(),
+            finder: new NodeFinder()
         );
     }
 
@@ -41,37 +45,51 @@ class DependencyResolver
             throw new FailedResolveDependencyException($error->getMessage());
         }
 
-        $this->traverser->addVisitor(new class extends NodeVisitorAbstract {
-            public function leaveNode(Node $node)
-            {
-                // TODO: Support for parsing dependencies inside classes
-                if ($node instanceof Declare_) {
-                    return NodeTraverser::REMOVE_NODE;
-                }
-                return null;
-            }
+        $dependency = $this->buildByAst(new Dependency(), $ast);
+
+        $this->traverser->addVisitor($this->removeNamespaceNameVisitor());
+        $ast = $this->traverser->traverse($ast);
+
+        /** @var Node\Name[] $names */
+        $names = $this->finder->find($ast, function (Node $node) {
+            return $node instanceof Node\Name;
         });
-
-        $ast = $this->traverser->traverse($ast)[0];
-
-        if (!$ast instanceof Namespace_) {
-            throw new FailedResolveDependencyException();
-        }
-
-        $namespace = implode("\\", $ast->name->parts);
-
-        $dependency = new Dependency();
-
-        foreach ($ast->stmts as $node) {
-            if ($node instanceof Class_) {
-                $dependency->setDepender($namespace . '\\' . $node->name->name);
-            }
-            if ($node instanceof Use_) {
-                // TODO: Consideration of multiple contents in uses
-                $dependency->registerDependent(implode("\\", $node->uses[0]->name->parts));
-            }
+        foreach ($names as $name) {
+            $dependency->registerDependent($name->toString());
         }
 
         return $dependency;
+    }
+
+    /**
+     * @param Dependency $dependency
+     * @param Stmt[] $ast
+     * @return Dependency
+     */
+    protected function buildByAst(Dependency $dependency, array $ast): Dependency
+    {
+        foreach ($ast as $node) {
+            if ($node instanceof Namespace_) {
+                $namespace = implode("\\", $node->name->parts);
+                return $this->buildByAst($dependency->setNamespace($namespace), $node->stmts);
+            }
+            if ($node instanceof ClassLike) {
+                return $this->buildByAst($dependency->setDepender($node->name->name), $node->stmts);
+            }
+        }
+        return $dependency;
+    }
+
+    private function removeNamespaceNameVisitor(): NodeVisitorAbstract
+    {
+        return new class extends NodeVisitorAbstract {
+            public function leaveNode(Node $node)
+            {
+                if ($node instanceof Namespace_) {
+                    $node->name = null;
+                }
+                return null;
+            }
+        };
     }
 }
