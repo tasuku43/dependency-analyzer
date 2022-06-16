@@ -26,10 +26,12 @@
     "require": {
         "symfony/console": "^6.0",
         "nikic/php-parser": "^4.14",
-        "phpunit/phpunit": "^9.5",
         "symfony/finder": "^6.0"
     },
     "bin": [
         "dependency-checker"
-    ]
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    }
 }
