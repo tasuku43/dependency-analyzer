@@ -1,4 +1,4 @@
-# dependency-checker
+# Dependency Analyzer for PHP
 ## Overview
 Analyze dependencies on specific classes.We hope this will be useful for major version upgrades of dependent libraries.
 For example, if you know that there is a disruptive change in a particular class, you can immediately see which classes in your project are affected.
@@ -6,7 +6,7 @@ Combined with a library upgrade tool such as [dependebot](https://github.com/dep
 ## Installation
 Via Composer
 ```shell
-composer require --dev tasuku43/dependency-checker
+composer require --dev tasuku43/dependency-analyzer
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ $ tree -L 1
 
 ### Check the list of classes that depend on the specified namespace
 ```shell
-$ ./vendor/bin/dependency-checker analyse --path app --pattern "Illuminate\Support"
+$ ./vendor/bin/dependency-analyzer analyse --path app --pattern "Illuminate\Support"
  [============================] 100%
  ---------------- ------------------------------------
   Depender         App\Providers\AppServiceProvider
@@ -84,7 +84,7 @@ $ ./vendor/bin/dependency-checker analyse --path app --pattern "Illuminate\Suppo
 
 ### Check the list of classes that depend on the specified class.
 ```shell
-$ ./vendor/bin/dependency-checker analyse --path app --pattern "Illuminate\Support\ServiceProvider"
+$ ./vendor/bin/dependency-analyzer analyse --path app --pattern "Illuminate\Support\ServiceProvider"
  [============================] 100%
  ---------------- ------------------------------------
   Depender         App\Providers\AppServiceProvider
@@ -104,7 +104,7 @@ $ ./vendor/bin/dependency-checker analyse --path app --pattern "Illuminate\Suppo
 
 ### Check the list of classes that depend on the specified class by grouping them with Dependent Classe.
 ```shell
-$ ./vendor/bin/dependency-checker analyse --path app --pattern "Illuminate\Support\ServiceProvider" --group-by dependent
+$ ./vendor/bin/dependency-analyzer analyse --path app --pattern "Illuminate\Support\ServiceProvider" --group-by dependent
  [============================] 100%
  --------------- ----------------------------------------
   Dependent       Illuminate\Support\ServiceProvider
