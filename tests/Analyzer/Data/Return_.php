@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Tasuku43\Tests\DependencyChecker\Analyzer\Data;
+namespace Tasuku43\Tests\DependencyAnalyzer\Analyzer\Data;
 
 interface Return_
 {
-    public function exec(): \Tasuku43\Tests\DependencyChecker\Analyzer\Data\Package\SampleClass;
+    public function exec(): \Tasuku43\Tests\DependencyAnalyzer\Analyzer\Data\Package\SampleClass;
 }

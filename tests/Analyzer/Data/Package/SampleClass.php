@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tasuku43\Tests\DependencyChecker\Analyzer\Data\Package;
+namespace Tasuku43\Tests\DependencyAnalyzer\Analyzer\Data\Package;
 
 class SampleClass
 {

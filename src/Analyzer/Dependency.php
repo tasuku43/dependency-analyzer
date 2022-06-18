@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tasuku43\DependencyChecker\Analyzer;
+namespace Tasuku43\DependencyAnalyzer\Analyzer;
 
 class Dependency
 {

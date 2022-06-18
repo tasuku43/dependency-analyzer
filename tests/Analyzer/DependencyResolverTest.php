@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Tasuku43\Tests\DependencyChecker\Analyzer;
+namespace Tasuku43\Tests\DependencyAnalyzer\Analyzer;
 
 use PHPUnit\Framework\TestCase;
-use Tasuku43\DependencyChecker\Analyzer\DependencyResolver;
-use Tasuku43\Tests\DependencyChecker\Analyzer\Data\Package\SampleClass;
+use Tasuku43\DependencyAnalyzer\Analyzer\DependencyResolver;
+use Tasuku43\Tests\DependencyAnalyzer\Analyzer\Data\Package\SampleClass;
 
 class DependencyResolverTest extends TestCase
 {

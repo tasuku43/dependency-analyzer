@@ -1,5 +1,5 @@
 {
-    "name": "tasuku43/dependency-checker",
+    "name": "tasuku43/dependency-analyzer",
     "type": "library",
     "description": "Check the dependencies of PHP classes",
     "license": ["MIT"],
@@ -15,12 +15,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "Tasuku43\\DependencyChecker\\": "src/"
+            "Tasuku43\\DependencyAnalyzer\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tasuku43\\Tests\\DependencyChecker\\": "tests/"
+            "Tasuku43\\Tests\\DependencyAnalyzer\\": "tests/"
         }
     },
     "require": {
@@ -30,7 +30,7 @@
         "symfony/finder": "^6.0"
     },
     "bin": [
-        "dependency-checker"
+        "dependency-analyzer"
     ],
     "require-dev": {
         "phpunit/phpunit": "^9.5"

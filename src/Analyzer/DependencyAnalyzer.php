@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tasuku43\DependencyChecker\Analyzer;
+namespace Tasuku43\DependencyAnalyzer\Analyzer;
 
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Tasuku43\Tests\DependencyChecker\Analyzer\Data;
+namespace Tasuku43\Tests\DependencyAnalyzer\Analyzer\Data;
 
-use Tasuku43\Tests\DependencyChecker\Analyzer\Data\Package\SampleClass;
+use Tasuku43\Tests\DependencyAnalyzer\Analyzer\Data\Package\SampleClass;
 
 interface Use_
 {

@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Tasuku43\Tests\DependencyChecker\Analyzer\Data;
+namespace Tasuku43\Tests\DependencyAnalyzer\Analyzer\Data;
 
 class CallStaticClassConst
 {
     public function hoge(): string
     {
-        return \Tasuku43\Tests\DependencyChecker\Analyzer\Data\Package\SampleClass::CONST_;
+        return \Tasuku43\Tests\DependencyAnalyzer\Analyzer\Data\Package\SampleClass::CONST_;
     }
 }

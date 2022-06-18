@@ -2,7 +2,7 @@
 <?php
 
 use Symfony\Component\Console\Application;
-use Tasuku43\DependencyChecker\Console\Command\AnalyseCommand;
+use Tasuku43\DependencyAnalyzer\Console\Command\AnalyseCommand;
 
 foreach (array(__DIR__ . '/../../autoload.php', __DIR__ . '/../vendor/autoload.php', __DIR__ . '/vendor/autoload.php') as $file) {
     if (file_exists($file)) {

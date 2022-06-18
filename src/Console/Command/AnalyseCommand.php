@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace Tasuku43\DependencyChecker\Console\Command;
+namespace Tasuku43\DependencyAnalyzer\Console\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Tasuku43\DependencyChecker\Analyzer\Dependency;
-use Tasuku43\DependencyChecker\Analyzer\DependencyAnalyzer;
-use Tasuku43\DependencyChecker\Analyzer\DependencyResolver;
+use Tasuku43\DependencyAnalyzer\Analyzer\Dependency;
+use Tasuku43\DependencyAnalyzer\Analyzer\DependencyAnalyzer;
+use Tasuku43\DependencyAnalyzer\Analyzer\DependencyResolver;
 
 class AnalyseCommand extends Command
 {
