@@ -2,7 +2,7 @@
 ## Overview
 Analyze dependencies on specific classes.We hope this will be useful for major version upgrades of dependent libraries.
 For example, if you know that there is a disruptive change in a particular class, you can immediately see which classes in your project are affected.
-Combined with a library upgrade tool such as https://github.com/dependabot/dependabot-core, it is also possible to comment the affected classes in the generated PR.
+Combined with a library upgrade tool such as [dependebot](https://github.com/dependabot/dependabot-core), it is also possible to comment the affected classes in the generated PR.
 ## Installation
 Via Composer
 ```shell
@@ -10,7 +10,7 @@ composer require --dev tasuku43/dependency-checker
 ```
 
 ## Usage
-Use https://github.com/laravel/laravel as a sample project to check the operation.
+Use [laravel/laravel](https://github.com/laravel/laravel) as a sample project to check the operation.
 ```shell
 $ tree -L 1
 .
